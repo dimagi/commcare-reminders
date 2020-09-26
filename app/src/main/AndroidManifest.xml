@@ -2,6 +2,8 @@
 <manifest package="org.commcare.dalvik.reminders"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="org.commcare.dalvik.provider.cases.read"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -12,10 +14,15 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".CommCareReceiver">
+            <intent-filter>
+                <action android:name="org.commcare.dalvik.api.action.data.update"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

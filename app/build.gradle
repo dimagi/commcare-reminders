@@ -50,11 +50,15 @@ dependencies {
 
     // Kotlin components
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$rootProject.coroutines"
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$rootProject.coroutines"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$rootProject.coroutines"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$rootProject.coroutines"
 
     // Material design
     implementation "com.google.android.material:material:$rootProject.materialVersion"
+
+    // work manager
+    implementation "androidx.work:work-runtime:$rootProject.workManagerVersion"
+    implementation "androidx.work:work-runtime-ktx:$rootProject.workManagerVersion"
 
     // Testing
     testImplementation 'junit:junit:4.13'
