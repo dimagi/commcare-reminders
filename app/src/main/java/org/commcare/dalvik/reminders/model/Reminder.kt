@@ -1,8 +1,11 @@
 package org.commcare.dalvik.reminders.model
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
-import java.util.*
 
-@Entity
-data class Reminder(@PrimaryKey(autoGenerate = true) val id: Int, val title: String, val date: String)
+@Entity(primaryKeys = ["caseId", "date"])
+data class Reminder(
+    val title: String,
+    val detail: String?,
+    val caseId: String,
+    val date: String
+)

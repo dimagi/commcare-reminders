@@ -1,11 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_margin="@dimen/standard_padding"
+    android:layout_height="100dp">
 
-    <TextView
-        android:id="@+id/reminder_title"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:text="TextView" />
-</LinearLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:padding="@dimen/standard_padding"
+        android:layout_height="match_parent">
+
+        <TextView
+            style="@style/TextAppearance.AppCompat.Title"
+            android:id="@+id/reminder_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            style="@style/TextAppearance.AppCompat.Body1"
+            android:paddingTop="@dimen/standard_padding"
+            android:id="@+id/reminder_detail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/reminder_title" />
+
+        <TextView
+            style="@style/TextAppearance.AppCompat.Caption"
+            android:id="@+id/reminder_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true" />
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>
