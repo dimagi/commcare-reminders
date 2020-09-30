@@ -21,7 +21,4 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
         allReminders = repository.allReminders
     }
 
-    fun saveReminder(reminder: Reminder) = viewModelScope.launch(Dispatchers.IO) {
-        repository.save(reminder)
-    }
 }

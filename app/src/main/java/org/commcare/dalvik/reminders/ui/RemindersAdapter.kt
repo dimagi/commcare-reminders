@@ -8,17 +8,19 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import org.commcare.dalvik.reminders.R
 import org.commcare.dalvik.reminders.model.Reminder
+import org.commcare.dalvik.reminders.utils.TimeUtils
+import java.text.ParseException
 
-class RemindersAdapter internal constructor(context: Context) :
+class RemindersAdapter internal constructor(private val context: Context) :
     RecyclerView.Adapter<RemindersAdapter.ReminderViewHolder>() {
 
     private val inflater: LayoutInflater = LayoutInflater.from(context)
-    private var reminders  = emptyList<Reminder>()
+    private var reminders = emptyList<Reminder>()
 
     inner class ReminderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val title : TextView = itemView.findViewById(R.id.reminder_title)
-        val detail : TextView = itemView.findViewById(R.id.reminder_detail)
-        val time : TextView = itemView.findViewById(R.id.reminder_time)
+        val title: TextView = itemView.findViewById(R.id.reminder_title)
+        val detail: TextView = itemView.findViewById(R.id.reminder_detail)
+        val time: TextView = itemView.findViewById(R.id.reminder_time)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReminderViewHolder {
@@ -32,10 +34,14 @@ class RemindersAdapter internal constructor(context: Context) :
         val reminder = reminders[position]
         holder.title.text = reminder.title
         holder.detail.text = reminder.detail
-        holder.time.text = reminder.date
+        try {
+            holder.time.text = TimeUtils.getUserFriendlyTime(context, reminder.date)
+        } catch (e: ParseException) {
+            holder.time.text = reminder.date
+        }
     }
 
-    internal fun setReminders(reminders : List<Reminder>) {
+    internal fun setReminders(reminders: List<Reminder>) {
         this.reminders = reminders
         notifyDataSetChanged()
     }
