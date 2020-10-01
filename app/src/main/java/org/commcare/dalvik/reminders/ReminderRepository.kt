@@ -8,11 +8,7 @@ class ReminderRepository(private val reminderDao: ReminderDao) {
 
     val allReminders: LiveData<List<Reminder>> = reminderDao.getAllReminders()
 
-    suspend fun save(reminder: Reminder){
-        reminderDao.insertReminder(reminder)
-    }
-
-    suspend fun delete(reminder: Reminder){
-        reminderDao.deleteReminder(reminder)
+    suspend fun updateAllReminders(reminders: List<Reminder>){
+        reminderDao.updateAllReminders(reminders)
     }
 }
