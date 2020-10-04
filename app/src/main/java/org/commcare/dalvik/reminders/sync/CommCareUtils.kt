@@ -19,7 +19,7 @@ object CommCareUtils {
             arrayOf(COMMCARE_REMINDER_CASE_TYPE)
         )
         val reminders = ArrayList<Reminder>()
-        remindersCaseCursor.use {
+        remindersCaseCursor?.use {
             while (remindersCaseCursor.moveToNext()) {
                 val props = ArrayList<String>()
                 props.add(DETAIL)

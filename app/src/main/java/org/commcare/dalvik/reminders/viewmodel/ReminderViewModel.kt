@@ -6,12 +6,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.commcare.dalvik.reminders.PrefsUtil
 import org.commcare.dalvik.reminders.ReminderRepository
 import org.commcare.dalvik.reminders.db.ReminderRoomDatabase
 import org.commcare.dalvik.reminders.model.Reminder
 
 class ReminderViewModel(application: Application) : AndroidViewModel(application) {
-
     private val repository: ReminderRepository
     val allReminders: LiveData<List<Reminder>>
 
@@ -21,4 +21,11 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
         allReminders = repository.allReminders
     }
 
+    fun syncOnFirstRun() {
+        if (PrefsUtil.isSyncPending(getApplication())) {
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.refreshCasesFromCC(getApplication())
+            }
+        }
+    }
 }
