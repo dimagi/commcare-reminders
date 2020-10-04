@@ -2,7 +2,7 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_margin="@dimen/standard_padding"
-    android:layout_height="100dp">
+    android:layout_height="wrap_content">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -26,6 +26,8 @@
         <TextView
             style="@style/TextAppearance.AppCompat.Caption"
             android:id="@+id/reminder_time"
+            android:paddingTop="@dimen/standard_padding"
+            android:layout_below="@id/reminder_detail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true" />
