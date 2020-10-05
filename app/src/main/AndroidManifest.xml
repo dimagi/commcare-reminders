@@ -24,6 +24,8 @@
                 <action android:name="org.commcare.dalvik.api.action.data.update"/>
             </intent-filter>
         </receiver>
+
+        <receiver android:name=".notification.RemindersNotificationReceiver"/>
     </application>
 
 </manifest>
