@@ -39,7 +39,8 @@ class MainActivity : AppCompatActivity() {
         val remindersAdapter = RemindersAdapter(this)
         remindersRecyclerView.adapter = remindersAdapter
         remindersRecyclerView.layoutManager = GridLayoutManager(this, COLUMN_COUNT)
-        reminderViewModel.allReminders.observe(this, Observer { reminders ->
+
+        reminderViewModel.futureReminders.observe(this, Observer { reminders ->
             if (reminders == null || reminders.isEmpty()) {
                 setStatus(R.string.no_reminders_message)
             } else {
