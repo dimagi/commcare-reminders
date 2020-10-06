@@ -4,6 +4,9 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import org.commcare.dalvik.reminders.utils.TimeUtils
+import java.text.ParseException
+import java.util.*
 
 @Entity
 data class Reminder(
@@ -12,36 +15,15 @@ data class Reminder(
     val detail: String,
     val caseId: String,
     val date: String
-) : Parcelable {
+) {
 
-    constructor(parcel: Parcel) : this(
-        parcel.readInt(),
-        parcel.readString()!!,
-        parcel.readString()!!,
-        parcel.readString()!!,
-        parcel.readString()!!
-    )
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(id)
-        parcel.writeString(title)
-        parcel.writeString(detail)
-        parcel.writeString(caseId)
-        parcel.writeString(date)
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    companion object CREATOR : Parcelable.Creator<Reminder> {
-        override fun createFromParcel(parcel: Parcel): Reminder {
-            return Reminder(parcel)
+    fun isInFuture(): Boolean {
+        try {
+            val date = TimeUtils.parseDate(date)
+            return date.time >= Date().time
+        } catch (e: ParseException) {
+            // do nothing
         }
-
-        override fun newArray(size: Int): Array<Reminder?> {
-            return arrayOfNulls(size)
-        }
+        return false
     }
-
 }

@@ -21,19 +21,9 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
         repository = ReminderRepository(reminderDao)
         futureReminders = Transformations.switchMap(repository.allReminders) { reminders ->
             val filteredReminders = MutableLiveData<List<Reminder>>()
-            filteredReminders.value = reminders.filter { isReminderInFuture(it) }
+            filteredReminders.value = reminders.filter { it.isInFuture() }
             filteredReminders
         }
-    }
-
-    private fun isReminderInFuture(reminder: Reminder): Boolean {
-        try {
-            val date = TimeUtils.parseDate(reminder.date)
-            return date.time >= Date().time
-        } catch (e: ParseException) {
-            // do nothing
-        }
-        return false
     }
 
     fun syncOnFirstRun() {

@@ -63,27 +63,28 @@ class AlarmScheduler(private val context: Context) {
     }
 
     private fun scheduleAlarms(alarmMgr: AlarmManager, reminders: List<Reminder>) {
-        reminders.forEach { reminder ->
-            try {
-                val alarmItent = Intent(context, RemindersNotificationReceiver::class.java)
-                alarmItent.putExtra(EXTRA_NOTIFICATION, buildNotification(reminder))
-                alarmItent.putExtra(EXTRA_NOTIFICATION_ID, reminder.id)
-                val reminderTime = TimeUtils.parseDate(reminder.date)
-                val alarmPendingIntent: PendingIntent = PendingIntent.getBroadcast(
-                    context,
-                    REMINDER_NOTIFICATION_REQUEST,
-                    alarmItent,
-                    PendingIntent.FLAG_UPDATE_CURRENT
-                )
+        reminders.filter { it.isInFuture() }
+            .forEach { reminder ->
+                try {
+                    val alarmItent = Intent(context, RemindersNotificationReceiver::class.java)
+                    alarmItent.putExtra(EXTRA_NOTIFICATION, buildNotification(reminder))
+                    alarmItent.putExtra(EXTRA_NOTIFICATION_ID, reminder.id)
+                    val reminderTime = TimeUtils.parseDate(reminder.date)
+                    val alarmPendingIntent: PendingIntent = PendingIntent.getBroadcast(
+                        context,
+                        REMINDER_NOTIFICATION_REQUEST,
+                        alarmItent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                    )
 
-                alarmMgr.set(
-                    AlarmManager.RTC_WAKEUP,
-                    reminderTime.time,
-                    alarmPendingIntent
-                )
-            } catch (e: ParseException) {
-                e.printStackTrace()
+                    alarmMgr.set(
+                        AlarmManager.RTC_WAKEUP,
+                        reminderTime.time,
+                        alarmPendingIntent
+                    )
+                } catch (e: ParseException) {
+                    e.printStackTrace()
+                }
             }
-        }
     }
 }
