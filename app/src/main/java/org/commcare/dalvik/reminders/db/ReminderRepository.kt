@@ -1,11 +1,11 @@
-package org.commcare.dalvik.reminders
+package org.commcare.dalvik.reminders.db
 
 import android.content.Context
 import androidx.lifecycle.LiveData
-import org.commcare.dalvik.reminders.db.ReminderDao
 import org.commcare.dalvik.reminders.model.Reminder
 import org.commcare.dalvik.reminders.sync.AlarmScheduler
 import org.commcare.dalvik.reminders.sync.CommCareUtils
+import org.commcare.dalvik.reminders.utils.PrefsUtil
 
 class ReminderRepository(private val reminderDao: ReminderDao) {
 

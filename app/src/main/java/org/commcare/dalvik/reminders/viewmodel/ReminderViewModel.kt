@@ -4,13 +4,10 @@ import android.app.Application
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.commcare.dalvik.reminders.PrefsUtil
-import org.commcare.dalvik.reminders.ReminderRepository
+import org.commcare.dalvik.reminders.db.ReminderRepository
 import org.commcare.dalvik.reminders.db.ReminderRoomDatabase
 import org.commcare.dalvik.reminders.model.Reminder
-import org.commcare.dalvik.reminders.utils.TimeUtils
-import java.text.ParseException
-import java.util.*
+import org.commcare.dalvik.reminders.utils.PrefsUtil
 
 class ReminderViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: ReminderRepository
@@ -18,7 +15,8 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
 
     init {
         val reminderDao = ReminderRoomDatabase.getDatabase(application).reminderDao()
-        repository = ReminderRepository(reminderDao)
+        repository =
+            ReminderRepository(reminderDao)
         futureReminders = Transformations.switchMap(repository.allReminders) { reminders ->
             val filteredReminders = MutableLiveData<List<Reminder>>()
             filteredReminders.value = reminders.filter { it.isInFuture() }

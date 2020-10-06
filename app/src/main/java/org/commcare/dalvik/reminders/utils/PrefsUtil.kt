@@ -1,4 +1,4 @@
-package org.commcare.dalvik.reminders
+package org.commcare.dalvik.reminders.utils
 
 import android.content.Context
 import androidx.preference.PreferenceManager
