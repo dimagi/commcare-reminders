@@ -5,6 +5,8 @@ import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import org.commcare.dalvik.reminders.MainActivity
 import org.commcare.dalvik.reminders.R
@@ -15,24 +17,28 @@ import org.commcare.dalvik.reminders.notification.RemindersNotificationReceiver.
 import org.commcare.dalvik.reminders.notification.RemindersNotificationReceiver.Companion.EXTRA_NOTIFICATION_ID
 import org.commcare.dalvik.reminders.utils.TimeUtils
 import java.text.ParseException
+import java.util.*
 
 class AlarmScheduler(private val context: Context) {
 
     companion object {
         private const val REMINDER_NOTIFICATION_REQUEST = 111111
+        private const val DUMMY_REMINDER_URI = "content://org.commcare.dalvik.reminders//reminder/"
     }
+
 
     val alarmMgr: AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     // delete alarms corresponding to old reminders and reschedule for given list of reminders
     fun refreshAlarms(oldReminders: List<Reminder>?, reminders: List<Reminder>) {
-        deleteScheduledAlarms(alarmMgr, oldReminders)
-        scheduleAlarms(alarmMgr, reminders)
+        deleteScheduledAlarms(oldReminders)
+        scheduleAlarms(reminders)
     }
 
-    private fun deleteScheduledAlarms(alarmMgr: AlarmManager, oldReminders: List<Reminder>?) {
+    private fun deleteScheduledAlarms(oldReminders: List<Reminder>?) {
         oldReminders?.forEach { reminder ->
             val alarmItent = Intent(context, RemindersNotificationReceiver::class.java)
+            alarmItent.data = getDummyReminderUri(reminder.id)
             alarmItent.putExtra(EXTRA_NOTIFICATION, buildNotification(reminder))
             alarmItent.putExtra(EXTRA_NOTIFICATION_ID, reminder.id)
             val alarmPendingIntent: PendingIntent = PendingIntent.getBroadcast(
@@ -62,13 +68,18 @@ class AlarmScheduler(private val context: Context) {
             .setAutoCancel(true).build()
     }
 
-    private fun scheduleAlarms(alarmMgr: AlarmManager, reminders: List<Reminder>) {
+    fun scheduleAlarms(reminders: List<Reminder>) {
         reminders.filter { it.isInFuture() }
             .forEach { reminder ->
                 try {
                     val alarmItent = Intent(context, RemindersNotificationReceiver::class.java)
                     alarmItent.putExtra(EXTRA_NOTIFICATION, buildNotification(reminder))
                     alarmItent.putExtra(EXTRA_NOTIFICATION_ID, reminder.id)
+
+                    // this is required to uniquely differentiate this Intent from other
+                    // scheduled reminders while getting a Pending Intent
+                    alarmItent.data = getDummyReminderUri(reminder.id)
+
                     val reminderTime = TimeUtils.parseDate(reminder.date)
                     val alarmPendingIntent: PendingIntent = PendingIntent.getBroadcast(
                         context,
@@ -76,8 +87,7 @@ class AlarmScheduler(private val context: Context) {
                         alarmItent,
                         PendingIntent.FLAG_UPDATE_CURRENT
                     )
-
-                    alarmMgr.set(
+                    alarmMgr.setExact(
                         AlarmManager.RTC_WAKEUP,
                         reminderTime.time,
                         alarmPendingIntent
@@ -86,5 +96,9 @@ class AlarmScheduler(private val context: Context) {
                     e.printStackTrace()
                 }
             }
+    }
+
+    private fun getDummyReminderUri(id: Int): Uri {
+        return Uri.parse(DUMMY_REMINDER_URI + id)
     }
 }

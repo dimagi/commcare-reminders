@@ -4,6 +4,7 @@ import android.app.Notification
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.core.app.NotificationManagerCompat
 
 class RemindersNotificationReceiver : BroadcastReceiver() {
@@ -15,9 +16,12 @@ class RemindersNotificationReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent?) {
-         intent?.getParcelableExtra<Notification>(EXTRA_NOTIFICATION)?.let { notification ->
+        intent?.getParcelableExtra<Notification>(EXTRA_NOTIFICATION)?.let { notification ->
             with(NotificationManagerCompat.from(context)) {
-                notify(intent.getIntExtra(EXTRA_NOTIFICATION_ID, DEFAULT_NOTIFICATION_ID), notification)
+                notify(
+                    intent.getIntExtra(EXTRA_NOTIFICATION_ID, DEFAULT_NOTIFICATION_ID),
+                    notification
+                )
             }
         }
     }

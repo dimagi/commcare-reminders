@@ -9,14 +9,18 @@ import org.commcare.dalvik.reminders.utils.PrefsUtil
 
 class ReminderRepository(private val reminderDao: ReminderDao) {
 
-    val allReminders: LiveData<List<Reminder>> = reminderDao.getAllReminders()
+    val observeReminders: LiveData<List<Reminder>> = reminderDao.observeReminders()
 
     suspend fun refreshCasesFromCC(context: Context) {
         CommCareUtils.getRemindersFromCommCare(context).let { reminders ->
-            val oldReminders = allReminders.value
+            val oldReminders = getAllReminders()
             reminderDao.updateAllReminders(reminders)
             PrefsUtil.markSuccessfulSync(context)
             AlarmScheduler(context).refreshAlarms(oldReminders, reminders)
         }
+    }
+
+    suspend fun getAllReminders(): List<Reminder> {
+        return reminderDao.getAllReminders()
     }
 }

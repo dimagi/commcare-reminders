@@ -17,7 +17,7 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
         val reminderDao = ReminderRoomDatabase.getDatabase(application).reminderDao()
         repository =
             ReminderRepository(reminderDao)
-        futureReminders = Transformations.switchMap(repository.allReminders) { reminders ->
+        futureReminders = Transformations.switchMap(repository.observeReminders) { reminders ->
             val filteredReminders = MutableLiveData<List<Reminder>>()
             filteredReminders.value = reminders.filter { it.isInFuture() }
             filteredReminders

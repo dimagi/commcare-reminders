@@ -8,7 +8,10 @@ import org.commcare.dalvik.reminders.model.Reminder
 interface ReminderDao {
 
     @Query("SELECT * from reminder ORDER BY date ASC")
-    fun getAllReminders(): LiveData<List<Reminder>>
+    fun observeReminders(): LiveData<List<Reminder>>
+
+    @Query("SELECT * from reminder ORDER BY date ASC")
+    suspend fun getAllReminders(): List<Reminder>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertReminder(reminder: Reminder)
