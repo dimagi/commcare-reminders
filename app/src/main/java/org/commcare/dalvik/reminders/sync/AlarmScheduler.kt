@@ -5,6 +5,7 @@ import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -60,7 +61,10 @@ class AlarmScheduler(private val context: Context) {
             context,
             ReminderApplication.DEFAULT_NOTIFICATION_CHANNEL_ID
         )
-            .setSmallIcon(R.mipmap.reminder_launcher)
+            .setSmallIcon(R.drawable.ic_action_bell)
+            .setLargeIcon(
+                BitmapFactory.decodeResource(context.resources,
+                R.mipmap.reminder_launcher))
             .setContentTitle(reminder.title)
             .setContentText(reminder.detail)
             .setContentIntent(PendingIntent.getActivity(context, 0, notifyIntent, 0))
