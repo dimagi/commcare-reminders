@@ -11,6 +11,7 @@ object CommCareUtils {
     private const val CASE_NAME = "case_name"
     private const val DETAIL = "detail"
     private const val TIME = "time"
+    private const val SESSION_ENDPOINT = "session_endpoint"
 
     fun getRemindersFromCommCare(context : Context): ArrayList<Reminder> {
         val remindersCaseCursor = CaseUtils.getCaseMetaData(
@@ -24,6 +25,7 @@ object CommCareUtils {
                 val props = ArrayList<String>()
                 props.add(DETAIL)
                 props.add(TIME)
+                props.add(SESSION_ENDPOINT)
                 val caseProperties = CaseUtils.getCaseProperties(
                     context,
                     remindersCaseCursor.getString(remindersCaseCursor.getColumnIndex(CASE_ID)),
@@ -32,11 +34,12 @@ object CommCareUtils {
 
                 val detail = caseProperties[DETAIL] ?: ""
                 val time = caseProperties[TIME]
+                val sessionEndpoint = caseProperties[SESSION_ENDPOINT] ?: ""
 
                 if (time != null) {
                     val title = remindersCaseCursor.getString(remindersCaseCursor.getColumnIndex(CASE_NAME))
                     val caseId = remindersCaseCursor.getString(remindersCaseCursor.getColumnIndex(CASE_ID))
-                    reminders.add(Reminder(0, title, detail, caseId, time))
+                    reminders.add(Reminder(0, title, detail, caseId, time, sessionEndpoint))
                 }
             }
         }

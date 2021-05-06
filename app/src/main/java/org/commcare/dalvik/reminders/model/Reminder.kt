@@ -1,7 +1,5 @@
 package org.commcare.dalvik.reminders.model
 
-import android.os.Parcel
-import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import org.commcare.dalvik.reminders.utils.TimeUtils
@@ -14,7 +12,8 @@ data class Reminder(
     val title: String,
     val detail: String,
     val caseId: String,
-    val date: String
+    val date: String,
+    val sessionEndpoint: String
 ) {
 
     fun isInFuture(): Boolean {

@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import org.commcare.dalvik.reminders.MainActivity
 import org.commcare.dalvik.reminders.R
@@ -18,13 +17,13 @@ import org.commcare.dalvik.reminders.notification.RemindersNotificationReceiver.
 import org.commcare.dalvik.reminders.notification.RemindersNotificationReceiver.Companion.EXTRA_NOTIFICATION_ID
 import org.commcare.dalvik.reminders.utils.TimeUtils
 import java.text.ParseException
-import java.util.*
 
 class AlarmScheduler(private val context: Context) {
 
     companion object {
         private const val REMINDER_NOTIFICATION_REQUEST = 111111
         private const val DUMMY_REMINDER_URI = "content://org.commcare.dalvik.reminders//reminder/"
+        private const val CC_SESSION_ACTION = "org.commcare.dalvik.action.CommCareSession"
     }
 
 
@@ -53,8 +52,17 @@ class AlarmScheduler(private val context: Context) {
     }
 
     private fun buildNotification(reminder: Reminder): Notification {
-        val notifyIntent = Intent(context, MainActivity::class.java).apply {
+        val notifyIntent = Intent(CC_SESSION_ACTION).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        if(reminder.sessionEndpoint != "") {
+            notifyIntent.putExtra("ccodk_session_endpoint_id", reminder.sessionEndpoint)
+            val sessionEndpointArgs = ArrayList<String>()
+            sessionEndpointArgs.add(reminder.caseId)
+            notifyIntent.putStringArrayListExtra(
+                "ccodk_session_endpoint_arguments_list",
+                sessionEndpointArgs
+            )
         }
 
         return NotificationCompat.Builder(
@@ -63,11 +71,14 @@ class AlarmScheduler(private val context: Context) {
         )
             .setSmallIcon(R.drawable.ic_action_bell)
             .setLargeIcon(
-                BitmapFactory.decodeResource(context.resources,
-                R.mipmap.reminder_launcher))
+                BitmapFactory.decodeResource(
+                    context.resources,
+                    R.mipmap.reminder_launcher
+                )
+            )
             .setContentTitle(reminder.title)
             .setContentText(reminder.detail)
-            .setContentIntent(PendingIntent.getActivity(context, 0, notifyIntent, 0))
+            .setContentIntent(PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT))
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setAutoCancel(true).build()
     }
