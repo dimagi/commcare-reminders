@@ -22,12 +22,16 @@ object TimeUtils {
 
     fun parseDate(dateStr: String): Date {
         return try {
-            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).parse(dateStr)
+            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS", Locale.US).parse(dateStr) // CC DateWidget + T + TimeWidget
         } catch (e: ParseException) {
             try {
-                SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.US).parse(dateStr)
+                SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US).parse(dateStr) // CC DateTimeWidget
             } catch (e: ParseException) {
-                SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(dateStr)
+                try {
+                    SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.US).parse(dateStr) // CC DateWidget + T + fixed time
+                } catch (e: ParseException) {
+                    SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(dateStr)  // CC Date Widget
+                }
             }
         }
     }
