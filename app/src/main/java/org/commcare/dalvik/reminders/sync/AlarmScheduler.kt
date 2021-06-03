@@ -64,6 +64,8 @@ class AlarmScheduler(private val context: Context) {
                 sessionEndpointArgs
             )
         }
+        notifyIntent.data = getDummyReminderUri(reminder.id)
+
 
         return NotificationCompat.Builder(
             context,
@@ -76,9 +78,10 @@ class AlarmScheduler(private val context: Context) {
                     R.mipmap.reminder_launcher
                 )
             )
+            .setChannelId(ReminderApplication.DEFAULT_NOTIFICATION_CHANNEL_ID)
             .setContentTitle(reminder.title)
             .setContentText(reminder.detail)
-            .setContentIntent(PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT))
+            .setContentIntent(PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_IMMUTABLE))
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setAutoCancel(true).build()
     }
@@ -89,7 +92,7 @@ class AlarmScheduler(private val context: Context) {
                 try {
                     val alarmItent = Intent(context, RemindersNotificationReceiver::class.java)
                     alarmItent.putExtra(EXTRA_NOTIFICATION, buildNotification(reminder))
-                    alarmItent.putExtra(EXTRA_NOTIFICATION_ID, reminder.id)
+                    alarmItent.putExtra(EXTRA_NOTIFICATION_ID, reminder.id.toInt())
 
                     // this is required to uniquely differentiate this Intent from other
                     // scheduled reminders while getting a Pending Intent
@@ -100,7 +103,7 @@ class AlarmScheduler(private val context: Context) {
                         context,
                         REMINDER_NOTIFICATION_REQUEST,
                         alarmItent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
+                        PendingIntent.FLAG_IMMUTABLE
                     )
                     alarmMgr.setExact(
                         AlarmManager.RTC_WAKEUP,
@@ -113,7 +116,7 @@ class AlarmScheduler(private val context: Context) {
             }
     }
 
-    private fun getDummyReminderUri(id: Int): Uri {
+    private fun getDummyReminderUri(id: Long): Uri {
         return Uri.parse(DUMMY_REMINDER_URI + id)
     }
 }

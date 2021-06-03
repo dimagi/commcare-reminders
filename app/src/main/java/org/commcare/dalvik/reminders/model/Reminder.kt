@@ -8,7 +8,7 @@ import java.util.*
 
 @Entity
 data class Reminder(
-    @PrimaryKey(autoGenerate = true) val id: Int,
+    @PrimaryKey(autoGenerate = true) var id: Long,
     val title: String,
     val detail: String,
     val caseId: String,

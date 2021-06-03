@@ -22,13 +22,14 @@ interface ReminderDao {
     @Transaction
     suspend fun updateAllReminders(reminders: List<Reminder>) {
         deleteAllReminders()
-        insertReminders(reminders)
+        var ids = insertReminders(reminders)
+        reminders.forEachIndexed { index, reminder -> reminder.id = ids[index] }
     }
 
     @Query("DELETE FROM reminder")
     suspend fun deleteAllReminders()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertReminders(reminders: List<Reminder>)
+    suspend fun insertReminders(reminders: List<Reminder>) : List<Long>
 
 }

@@ -12,7 +12,7 @@ class RemindersNotificationReceiver : BroadcastReceiver() {
     companion object {
         const val EXTRA_NOTIFICATION = "extra_notification"
         const val EXTRA_NOTIFICATION_ID = "extra_notification_id"
-        const val DEFAULT_NOTIFICATION_ID = 1
+        const val DEFAULT_NOTIFICATION_ID = -1
     }
 
     override fun onReceive(context: Context, intent: Intent?) {
