@@ -10,14 +10,21 @@ import org.commcare.dalvik.reminders.model.Reminder
 import org.commcare.dalvik.reminders.utils.PrefsUtil
 
 class ReminderViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository: ReminderRepository
-    val futureReminders: LiveData<List<Reminder>>
+    private val reminderDao = ReminderRoomDatabase.getDatabase(application).reminderDao()
+    private val repository: ReminderRepository = ReminderRepository(reminderDao)
+    private val loadTrigger = MutableLiveData(Unit)
 
-    init {
-        val reminderDao = ReminderRoomDatabase.getDatabase(application).reminderDao()
-        repository =
-            ReminderRepository(reminderDao)
-        futureReminders = Transformations.switchMap(repository.observeReminders) { reminders ->
+    val futureReminders: LiveData<List<Reminder>> =
+        Transformations.switchMap(loadTrigger) {
+            calculateRemindersInFuture()
+        }
+
+    fun refresh() {
+        loadTrigger.value = Unit
+    }
+
+    fun calculateRemindersInFuture(): LiveData<List<Reminder>> {
+        return Transformations.switchMap(repository.observeReminders) { reminders ->
             val filteredReminders = MutableLiveData<List<Reminder>>()
             filteredReminders.value = reminders.filter { it.isInFuture() }
             filteredReminders

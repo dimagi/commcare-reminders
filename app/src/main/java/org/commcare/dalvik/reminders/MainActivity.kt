@@ -35,6 +35,11 @@ class MainActivity : AppCompatActivity() {
         setUpUI()
     }
 
+    override fun onResume() {
+        super.onResume()
+        reminderViewModel.refresh()
+    }
+
     private fun setUpUI() {
         val remindersAdapter = RemindersAdapter(this)
         remindersRecyclerView.adapter = remindersAdapter
