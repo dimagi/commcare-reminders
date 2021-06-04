@@ -45,7 +45,7 @@ class AlarmScheduler(private val context: Context) {
                 context,
                 REMINDER_NOTIFICATION_REQUEST,
                 alarmItent,
-                PendingIntent.FLAG_UPDATE_CURRENT
+                PendingIntent.FLAG_IMMUTABLE
             )
             alarmMgr.cancel(alarmPendingIntent)
         }
@@ -64,7 +64,6 @@ class AlarmScheduler(private val context: Context) {
                 sessionEndpointArgs
             )
         }
-        notifyIntent.data = getDummyReminderUri(reminder.id)
 
 
         return NotificationCompat.Builder(
@@ -81,7 +80,7 @@ class AlarmScheduler(private val context: Context) {
             .setChannelId(ReminderApplication.DEFAULT_NOTIFICATION_CHANNEL_ID)
             .setContentTitle(reminder.title)
             .setContentText(reminder.detail)
-            .setContentIntent(PendingIntent.getActivity(context, 0, notifyIntent, PendingIntent.FLAG_IMMUTABLE))
+            .setContentIntent(PendingIntent.getActivity(context, reminder.id.toInt(), notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT))
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setAutoCancel(true).build()
     }
