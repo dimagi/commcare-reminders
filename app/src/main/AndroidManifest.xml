@@ -38,4 +38,8 @@
         </receiver>
     </application>
 
+    <queries>
+        <package android:name="org.commcare.dalvik" />
+    </queries>
+
 </manifest>
