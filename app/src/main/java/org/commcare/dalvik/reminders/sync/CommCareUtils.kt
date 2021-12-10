@@ -7,7 +7,7 @@ import org.commcare.dalvik.reminders.model.Reminder
 object CommCareUtils {
 
     private const val COMMCARE_REMINDER_CASE_TYPE = "commcare-reminder"
-    private const val CASE_ID = "case_id"
+    private const val CASEID = "caseid"
     private const val CASE_NAME = "case_name"
     private const val DETAIL = "detail"
     private const val TIME = "time"
@@ -28,7 +28,7 @@ object CommCareUtils {
                 props.add(SESSION_ENDPOINT)
                 val caseProperties = CaseUtils.getCaseProperties(
                     context,
-                    remindersCaseCursor.getString(remindersCaseCursor.getColumnIndex(CASE_ID)),
+                    remindersCaseCursor.getString(remindersCaseCursor.getColumnIndex(CASEID)),
                     props
                 )
 
@@ -38,7 +38,7 @@ object CommCareUtils {
 
                 if (time != null) {
                     val title = remindersCaseCursor.getString(remindersCaseCursor.getColumnIndex(CASE_NAME))
-                    val caseId = remindersCaseCursor.getString(remindersCaseCursor.getColumnIndex(CASE_ID))
+                    val caseId = remindersCaseCursor.getString(remindersCaseCursor.getColumnIndex(CASEID))
                     reminders.add(Reminder(0, title, detail, caseId, time, sessionEndpoint))
                 }
             }
