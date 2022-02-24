@@ -57,6 +57,7 @@ class AlarmScheduler(private val context: Context) {
         }
         if(reminder.sessionEndpoint != "") {
             notifyIntent.putExtra("ccodk_session_endpoint_id", reminder.sessionEndpoint)
+            notifyIntent.putExtra("ccodk_exit_after_form_submission", false)
             val sessionEndpointArgs = ArrayList<String>()
             sessionEndpointArgs.add(reminder.caseId)
             notifyIntent.putStringArrayListExtra(
