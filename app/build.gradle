@@ -37,9 +37,6 @@ android {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
-    lintOptions {
-        abortOnError false
-    }
 
     signingConfigs {
         release {
@@ -57,10 +54,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
     packagingOptions {
-        exclude 'META-INF/atomicfu.kotlin_module'
+        resources {
+            excludes += ['META-INF/atomicfu.kotlin_module']
+        }
     }
+
+    lint {
+        abortOnError false
+    }
+    namespace 'org.commcare.dalvik.reminders'
 }
 
 dependencies {
