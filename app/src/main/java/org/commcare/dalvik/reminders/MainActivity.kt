@@ -130,7 +130,7 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == ALARM_PERMISSION_REQUEST_CODE) {
             val alarmManager = ContextCompat.getSystemService(this, AlarmManager::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager?.canScheduleExactAlarms()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager?.canScheduleExactAlarms()!!) {
                 showAlarmPermissionNotGranted()
             } else {
                 validatePermissionsAndSync()
