@@ -7,8 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import androidx.core.app.NotificationCompat
-import org.commcare.dalvik.reminders.MainActivity
 import org.commcare.dalvik.reminders.R
 import org.commcare.dalvik.reminders.ReminderApplication
 import org.commcare.dalvik.reminders.model.Reminder
@@ -66,6 +66,9 @@ class AlarmScheduler(private val context: Context) {
             )
         }
 
+        var intentFlags = PendingIntent.FLAG_UPDATE_CURRENT
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) intentFlags =
+            intentFlags or PendingIntent.FLAG_IMMUTABLE
 
         return NotificationCompat.Builder(
             context,
@@ -81,39 +84,41 @@ class AlarmScheduler(private val context: Context) {
             .setChannelId(ReminderApplication.DEFAULT_NOTIFICATION_CHANNEL_ID)
             .setContentTitle(reminder.title)
             .setContentText(reminder.detail)
-            .setContentIntent(PendingIntent.getActivity(context, reminder.id.toInt(), notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT))
+            .setContentIntent(PendingIntent.getActivity(context, reminder.id.toInt(), notifyIntent, intentFlags))
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setAutoCancel(true).build()
     }
 
     fun scheduleAlarms(reminders: List<Reminder>) {
-        reminders.filter { it.isInFuture() }
-            .forEach { reminder ->
-                try {
-                    val alarmItent = Intent(context, RemindersNotificationReceiver::class.java)
-                    alarmItent.putExtra(EXTRA_NOTIFICATION, buildNotification(reminder))
-                    alarmItent.putExtra(EXTRA_NOTIFICATION_ID, reminder.id.toInt())
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmMgr.canScheduleExactAlarms()) {
+            reminders.filter { it.isInFuture() }
+                .forEach { reminder ->
+                    try {
+                        val alarmItent = Intent(context, RemindersNotificationReceiver::class.java)
+                        alarmItent.putExtra(EXTRA_NOTIFICATION, buildNotification(reminder))
+                        alarmItent.putExtra(EXTRA_NOTIFICATION_ID, reminder.id.toInt())
 
-                    // this is required to uniquely differentiate this Intent from other
-                    // scheduled reminders while getting a Pending Intent
-                    alarmItent.data = getDummyReminderUri(reminder.id)
+                        // this is required to uniquely differentiate this Intent from other
+                        // scheduled reminders while getting a Pending Intent
+                        alarmItent.data = getDummyReminderUri(reminder.id)
 
-                    val reminderTime = TimeUtils.parseDate(reminder.date)
-                    val alarmPendingIntent: PendingIntent = PendingIntent.getBroadcast(
-                        context,
-                        REMINDER_NOTIFICATION_REQUEST,
-                        alarmItent,
-                        PendingIntent.FLAG_IMMUTABLE
-                    )
-                    alarmMgr.setExact(
-                        AlarmManager.RTC_WAKEUP,
-                        reminderTime.time,
-                        alarmPendingIntent
-                    )
-                } catch (e: ParseException) {
-                    e.printStackTrace()
+                        val reminderTime = TimeUtils.parseDate(reminder.date)
+                        val alarmPendingIntent: PendingIntent = PendingIntent.getBroadcast(
+                            context,
+                            REMINDER_NOTIFICATION_REQUEST,
+                            alarmItent,
+                            PendingIntent.FLAG_IMMUTABLE
+                        )
+                        alarmMgr.setExact(
+                            AlarmManager.RTC_WAKEUP,
+                            reminderTime.time,
+                            alarmPendingIntent
+                        )
+                    } catch (e: ParseException) {
+                        e.printStackTrace()
+                    }
                 }
-            }
+        }
     }
 
     private fun getDummyReminderUri(id: Long): Uri {

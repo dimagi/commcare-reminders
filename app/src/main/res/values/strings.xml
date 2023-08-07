@@ -4,6 +4,7 @@
     <string name="channel_description">Notifications to remind on the pending tasks</string>
     <string name="no_permission_message">"We don't have required permissions to fetch data from CommCare. Please give app the permissions by going into app settings. "</string>
     <string name="permission_rationale_message">We need you to grant permission to read the case data from CommCare in order to fetch reimnders from CommCare and remind you time to time on your pending tasks</string>
+    <string name="alarm_permission_rationale_message">We need permission to schedule Alarms to be able to remind you of your tasks</string>
     <string name="ok">OK</string>
     <string name="permission_rationale_title">Permission Required</string>
     <string name="no_reminders_message">No reminders scheduled</string>

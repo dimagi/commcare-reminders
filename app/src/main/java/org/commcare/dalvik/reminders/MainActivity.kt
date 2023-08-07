@@ -1,13 +1,18 @@
 package org.commcare.dalvik.reminders
 
+import android.app.AlarmManager
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat.requestPermissions
-import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
+import androidx.core.app.ActivityCompat.*
+import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.core.content.PermissionChecker.PERMISSION_DENIED
 import androidx.lifecycle.Observer
@@ -25,14 +30,28 @@ class MainActivity : AppCompatActivity() {
         private const val CC_PERMISSION_REQUEST_CODE = 1
     }
 
+    private val ALARM_PERMISSION_REQUEST_CODE: Int = 1111;
     private lateinit var reminderViewModel: ReminderViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         reminderViewModel = ViewModelProvider(this).get(ReminderViewModel::class.java)
+        validateAlarmPermission()
         validatePermissionsAndSync()
         setUpUI()
+    }
+
+    private fun validateAlarmPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val alarmManager = ContextCompat.getSystemService(this, AlarmManager::class.java)
+            if (alarmManager?.canScheduleExactAlarms() == false) {
+                Intent().also { intent ->
+                    intent.action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
+                    startActivityForResult(intent, ALARM_PERMISSION_REQUEST_CODE)
+                }
+            }
+        }
     }
 
     override fun onResume() {
@@ -103,6 +122,32 @@ class MainActivity : AppCompatActivity() {
             .setTitle(R.string.permission_rationale_title)
             .setPositiveButton(R.string.ok) { dialog, _ ->
                 dialog.dismiss()
+            }
+            .create()
+        dialog.show()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == ALARM_PERMISSION_REQUEST_CODE) {
+            val alarmManager = ContextCompat.getSystemService(this, AlarmManager::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager?.canScheduleExactAlarms()!!) {
+                showAlarmPermissionNotGranted()
+            } else {
+                validatePermissionsAndSync()
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
+    private fun showAlarmPermissionNotGranted() {
+        val dialog = AlertDialog.Builder(this)
+            .setMessage(R.string.alarm_permission_rationale_message)
+            .setTitle(R.string.permission_rationale_title)
+            .setPositiveButton(R.string.ok) { dialog, _ ->
+                dialog.dismiss()
+                // we can't work without Alarm permissions, ask user to grant permissions again
+                validateAlarmPermission()
             }
             .create()
         dialog.show()
