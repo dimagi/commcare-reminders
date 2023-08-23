@@ -1,44 +1,64 @@
 package org.commcare.dalvik.reminders
 
+import android.app.Activity
 import android.app.AlarmManager
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import android.widget.Toast
+import android.widget.Button
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat.*
 import androidx.core.content.ContextCompat
-import androidx.core.content.PermissionChecker
-import androidx.core.content.PermissionChecker.PERMISSION_DENIED
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.remindersRecyclerView
+import kotlinx.android.synthetic.main.activity_main.statusTv
 import org.commcare.dalvik.reminders.ui.RemindersAdapter
+import org.commcare.dalvik.reminders.utils.PermissionUtil
 import org.commcare.dalvik.reminders.viewmodel.ReminderViewModel
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val COLUMN_COUNT = 2
-        private const val CC_CASE_READ_PERMISSION = "org.commcare.dalvik.provider.cases.read"
-        private const val CC_PERMISSION_REQUEST_CODE = 1
     }
 
     private val ALARM_PERMISSION_REQUEST_CODE: Int = 1111;
     private lateinit var reminderViewModel: ReminderViewModel
+    private lateinit var requestPermissionBtn: Button
+
+    private val startPermissionActivityForResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                result.data?.let { intent ->
+                    intent.getStringExtra("isPermissionGranted")?.let {permissionResult ->
+                        if (permissionResult == PermissionActivity.GRANTED) {
+                            getStarted()
+                        } else {
+                            requestPermissionBtn.visibility = VISIBLE
+                            setStatus(R.string.storage_permission_not_granted)
+                        }
+                    }
+                }
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        requestPermissionBtn = findViewById(R.id.requestSetting)
+        requestPermissionBtn.setOnClickListener {
+            launchPermissionActivity()
+        }
+
         reminderViewModel = ViewModelProvider(this).get(ReminderViewModel::class.java)
         validateAlarmPermission()
-        validatePermissionsAndSync()
         setUpUI()
     }
 
@@ -50,7 +70,11 @@ class MainActivity : AppCompatActivity() {
                     intent.action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
                     startActivityForResult(intent, ALARM_PERMISSION_REQUEST_CODE)
                 }
+            }else{
+                validateReadPermissionsAndSync()
             }
+        }else{
+            validateReadPermissionsAndSync()
         }
     }
 
@@ -66,7 +90,12 @@ class MainActivity : AppCompatActivity() {
 
         reminderViewModel.futureReminders.observe(this, Observer { reminders ->
             if (reminders == null || reminders.isEmpty()) {
-                setStatus(R.string.no_reminders_message)
+                if(PermissionUtil.hasReadPermission(this)){
+                    setStatus(R.string.no_reminders_message)
+                }else{
+                    setStatus(R.string.storage_permission_not_granted)
+                }
+
             } else {
                 statusTv.visibility = GONE
             }
@@ -74,57 +103,19 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun validatePermissionsAndSync() {
-        if (PermissionChecker.checkSelfPermission(
-                this,
-                CC_CASE_READ_PERMISSION
-            ) == PERMISSION_DENIED
-        ) {
-            if (shouldShowRequestPermissionRationale(this, CC_CASE_READ_PERMISSION)) {
-                showPermissionRationale()
-            } else {
-                requestPermissions(
-                    this,
-                    arrayOf(CC_CASE_READ_PERMISSION),
-                    CC_PERMISSION_REQUEST_CODE
-                )
-            }
-        } else {
-            reminderViewModel.syncOnFirstRun()
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == CC_PERMISSION_REQUEST_CODE) {
-            if ((grantResults.isNotEmpty() &&
-                        grantResults[0] == PackageManager.PERMISSION_GRANTED)
-            ) {
-                reminderViewModel.syncOnFirstRun()
-            } else {
-                setStatus(R.string.no_permission_message)
-            }
-        }
-    }
-
     private fun setStatus(stringResource: Int) {
         statusTv.text = getString(stringResource)
         statusTv.visibility = VISIBLE
     }
 
-    private fun showPermissionRationale() {
-        val dialog = AlertDialog.Builder(this)
-            .setMessage(R.string.permission_rationale_message)
-            .setTitle(R.string.permission_rationale_title)
-            .setPositiveButton(R.string.ok) { dialog, _ ->
-                dialog.dismiss()
-            }
-            .create()
-        dialog.show()
+    private fun getStarted() {
+        requestPermissionBtn.visibility = GONE
+        (application as ReminderApplication).createNotificationChannel()
+        reminderViewModel.syncOnFirstRun()
+    }
+
+    private fun launchPermissionActivity(){
+        startPermissionActivityForResult.launch(Intent(this, PermissionActivity::class.java))
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -133,7 +124,7 @@ class MainActivity : AppCompatActivity() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager?.canScheduleExactAlarms()!!) {
                 showAlarmPermissionNotGranted()
             } else {
-                validatePermissionsAndSync()
+                validateReadPermissionsAndSync()
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data)
@@ -151,5 +142,15 @@ class MainActivity : AppCompatActivity() {
             }
             .create()
         dialog.show()
+    }
+
+
+    private fun validateReadPermissionsAndSync() {
+        if (PermissionUtil.hasReadPermission(this)) {
+            getStarted()
+        } else {
+            setStatus(R.string.no_permission_message)
+            launchPermissionActivity()
+        }
     }
 }
