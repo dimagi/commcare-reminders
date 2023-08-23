@@ -91,9 +91,10 @@ class MainActivity : AppCompatActivity() {
         reminderViewModel.futureReminders.observe(this, Observer { reminders ->
             if (reminders == null || reminders.isEmpty()) {
                 if(PermissionUtil.hasReadPermission(this)){
-                    setStatus(R.string.no_reminders_message)
+                    setStatus(R.string.storage_granted_msg)
                 }else{
                     setStatus(R.string.storage_permission_not_granted)
+                    requestPermissionBtn.visibility = VISIBLE
                 }
 
             } else {

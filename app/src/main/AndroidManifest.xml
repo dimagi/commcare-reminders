@@ -13,8 +13,7 @@
         android:roundIcon="@mipmap/reminder_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-        <activity android:name=".TestActivity"
+        <activity android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,12 +21,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
 
         <activity android:name=".PermissionActivity"
             android:exported="true">

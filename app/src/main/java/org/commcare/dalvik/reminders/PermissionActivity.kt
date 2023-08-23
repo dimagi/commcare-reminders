@@ -27,6 +27,7 @@ class PermissionActivity : AppCompatActivity() {
 
     private val TAG = "PermissionTest"
     private lateinit var permissionMsgView: TextView
+    private lateinit var readPermissionTitle: TextView
     private lateinit var grantPermissionBtn: Button
     private lateinit var appSettingBtn: Button
     private lateinit var settingCardView: CardView
@@ -47,6 +48,7 @@ class PermissionActivity : AppCompatActivity() {
         setContentView(R.layout.permission_activity)
 
         permissionMsgView = findViewById(R.id.permissionMsg)
+        readPermissionTitle = findViewById(R.id.readPermissionTitle)
         settingCardView = findViewById(R.id.appSettingCard)
 
 
@@ -56,7 +58,7 @@ class PermissionActivity : AppCompatActivity() {
         }
 
         grantPermissionBtn = findViewById(R.id.allowReadPermission)
-        grantPermissionBtn.tag = 0
+
         grantPermissionBtn.setOnClickListener {
             requestMultiplePermissionLauncher.launch(CC_CASE_READ_PERMISSION)
         }
@@ -99,18 +101,21 @@ class PermissionActivity : AppCompatActivity() {
                 Log.d(TAG, "Permission is GRANTED")
                 updateUI(resources.getString(R.string.storage_granted_msg), View.GONE)
                 settingCardView.visibility = View.GONE
+                readPermissionTitle.visibility = View.GONE
             }
 
             PermissionUtil.shouldShowRequestPermissionRationale(this) -> {
                 Log.d(TAG, "===>  SHOW RATIONALE MSG ")
                 updateUI(resources.getString(R.string.permission_rationale_message), View.VISIBLE)
                 settingCardView.visibility = View.GONE
+                readPermissionTitle.visibility = View.VISIBLE
             }
 
             else -> {
                 Log.d(TAG, "===> Check FOR PERMISSION")
                 updateUI(resources.getString(R.string.storage_permission_not_granted), View.VISIBLE)
                 settingCardView.visibility = View.VISIBLE
+                readPermissionTitle.visibility = View.VISIBLE
             }
         }
 
