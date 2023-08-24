@@ -70,10 +70,10 @@ class MainActivity : AppCompatActivity() {
                     intent.action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
                     startActivityForResult(intent, ALARM_PERMISSION_REQUEST_CODE)
                 }
-            }else{
+            } else {
                 validateReadPermissionsAndSync()
             }
-        }else{
+        } else {
             validateReadPermissionsAndSync()
         }
     }
