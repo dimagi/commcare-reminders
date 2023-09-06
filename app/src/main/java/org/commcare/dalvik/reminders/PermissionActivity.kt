@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
@@ -67,6 +68,13 @@ class PermissionActivity : AppCompatActivity() {
         backBtn.setOnClickListener {
             dispatchResult(PermissionUtil.hasReadPermission(this))
         }
+
+        val callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                dispatchResult(PermissionUtil.hasReadPermission(this@PermissionActivity))
+            }
+        }
+        onBackPressedDispatcher.addCallback(callback)
 
         checkPermission()
 
