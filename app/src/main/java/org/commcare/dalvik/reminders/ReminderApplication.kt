@@ -12,12 +12,8 @@ class ReminderApplication : Application() {
         const val DEFAULT_NOTIFICATION_CHANNEL_ID = "default_notification_channel"
     }
 
-    override fun onCreate() {
-        super.onCreate()
-        createNotificationChannel();
-    }
 
-    private fun createNotificationChannel() {
+    fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = getString(R.string.channel_name)
             val descriptionText = getString(R.string.channel_description)

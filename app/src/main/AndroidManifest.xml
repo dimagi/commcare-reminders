@@ -21,6 +21,16 @@
             </intent-filter>
         </activity>
 
+
+        <activity android:name=".PermissionActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="org.commcare.dalvik.reminders.permission" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+
         <receiver android:name=".CommCareReceiver"
             android:exported="true">
             <intent-filter>
