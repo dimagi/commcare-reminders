@@ -1,8 +1,10 @@
 package org.commcare.dalvik.reminders
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -11,6 +13,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import com.google.android.material.snackbar.Snackbar
@@ -21,8 +24,10 @@ class PermissionActivity : AppCompatActivity() {
 
     companion object {
         const val CC_CASE_READ_PERMISSION = "org.commcare.dalvik.provider.cases.read"
+        const val POST_NOTIFICATION_PERMISSION = Manifest.permission.POST_NOTIFICATIONS
         const val GRANTED = "GRANTED"
         const val DENIED = "DENIED"
+        val PEMISSION_ARR = arrayOf(CC_CASE_READ_PERMISSION, POST_NOTIFICATION_PERMISSION)
     }
 
 
@@ -33,8 +38,12 @@ class PermissionActivity : AppCompatActivity() {
     private lateinit var appSettingBtn: Button
     private lateinit var settingCardView: CardView
 
+    private var isReadPermissionGranted = false
+    private var isNotifcationRequestGranted = false
 
-    private val requestMultiplePermissionLauncher =
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private val requestSinglePermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             Log.d(TAG, "PERMISSION RESULT : ${isGranted}")
 
@@ -44,6 +53,20 @@ class PermissionActivity : AppCompatActivity() {
             }
         }
 
+    private val requestMultiplePermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            Log.d(TAG, "PERMISSION RESULT : ${permissions}")
+            isNotifcationRequestGranted =
+                permissions[POST_NOTIFICATION_PERMISSION] ?: isNotifcationRequestGranted
+            isReadPermissionGranted =
+                permissions[CC_CASE_READ_PERMISSION] ?: isReadPermissionGranted
+
+            if (!isNotifcationRequestGranted || !isReadPermissionGranted) {
+                showSnackbar()
+            }
+        }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.permission_activity)
@@ -61,7 +84,7 @@ class PermissionActivity : AppCompatActivity() {
         grantPermissionBtn = findViewById(R.id.allowReadPermission)
 
         grantPermissionBtn.setOnClickListener {
-            requestMultiplePermissionLauncher.launch(CC_CASE_READ_PERMISSION)
+            requestMultiplePermissionLauncher.launch(PEMISSION_ARR)
         }
 
         val backBtn = findViewById<Button>(R.id.backBtn)
@@ -80,6 +103,7 @@ class PermissionActivity : AppCompatActivity() {
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onResume() {
         super.onResume()
         checkPermission()
@@ -103,18 +127,37 @@ class PermissionActivity : AppCompatActivity() {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun checkPermission() {
         when {
             PermissionUtil.hasReadPermission(this) -> {
-                Log.d(TAG, "Permission is GRANTED")
-                updateUI(resources.getString(R.string.storage_granted_msg), View.GONE)
-                settingCardView.visibility = View.GONE
-                readPermissionTitle.visibility = View.GONE
+                if (hasNotificationPermission()) {
+                    Log.d(TAG, "READ AND NOTIFICATION permissions are GRANTED")
+                    updateUI(resources.getString(R.string.storage_granted_msg), View.GONE)
+                    settingCardView.visibility = View.GONE
+                    readPermissionTitle.visibility = View.GONE
+                } else {
+                    updateUI(
+                        resources.getString(R.string.notification_permission_not_granted),
+                        View.VISIBLE
+                    )
+                    settingCardView.visibility = View.VISIBLE
+                    readPermissionTitle.visibility = View.VISIBLE
+                }
             }
 
-            PermissionUtil.shouldShowRequestPermissionRationale(this) -> {
+            PermissionUtil.shouldShowReadPermissionRationale(this) -> {
                 Log.d(TAG, "===>  SHOW RATIONALE MSG ")
-                updateUI(resources.getString(R.string.permission_rationale_message), View.VISIBLE)
+                val rationaleMsg =
+                    if (shouldShowNotificationPermissionRationaleMsg())
+                        R.string.read_notification_permission_rationale_message
+                    else
+                        R.string.read_permission_rationale_message
+
+                updateUI(
+                    resources.getString(rationaleMsg),
+                    View.VISIBLE
+                )
                 settingCardView.visibility = View.GONE
                 readPermissionTitle.visibility = View.VISIBLE
             }
@@ -122,6 +165,16 @@ class PermissionActivity : AppCompatActivity() {
             else -> {
                 Log.d(TAG, "===> Check FOR PERMISSION")
                 updateUI(resources.getString(R.string.storage_permission_not_granted), View.VISIBLE)
+
+                if (!hasNotificationPermission()) {
+                    updateUI(
+                        permissionMsgView.text.toString()
+                            .plus(resources.getString(R.string.notification_permission_not_granted)),
+                        View.VISIBLE
+                    )
+                }
+
+
                 settingCardView.visibility = View.VISIBLE
                 readPermissionTitle.visibility = View.VISIBLE
             }
@@ -138,7 +191,7 @@ class PermissionActivity : AppCompatActivity() {
     }
 
     private fun showSnackbar() {
-        if(!PermissionUtil.shouldShowRequestPermissionRationale(this)){
+        if (!PermissionUtil.shouldShowReadPermissionRationale(this)) {
             val snackbar = Snackbar.make(
                 findViewById(R.id.layout),
                 resources.getString(R.string.noPermissionNote),
@@ -150,6 +203,21 @@ class PermissionActivity : AppCompatActivity() {
             snackbar.show()
         }
 
+    }
+
+    private fun hasNotificationPermission() =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            PermissionUtil.hasNotificationPermission(this)
+        } else {
+            true
+        }
+
+    private fun shouldShowNotificationPermissionRationaleMsg(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            PermissionUtil.shouldShowNotificationPermissionRationale(this)
+        } else {
+            false
+        }
     }
 
 

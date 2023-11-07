@@ -10,6 +10,7 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.Button
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -48,6 +49,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -147,11 +149,23 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun validateReadPermissionsAndSync() {
-        if (PermissionUtil.hasReadPermission(this)) {
-            getStarted()
+        if (PermissionUtil.hasReadPermission(this) ) {
+            if(hasNotificationPermission()) {
+                getStarted()
+            }else{
+                setStatus(R.string.no_notification_permission_message)
+                launchPermissionActivity()
+            }
         } else {
             setStatus(R.string.no_permission_message)
             launchPermissionActivity()
         }
     }
+
+    private fun hasNotificationPermission() =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            PermissionUtil.hasNotificationPermission(this)
+        } else {
+            true
+        }
 }
