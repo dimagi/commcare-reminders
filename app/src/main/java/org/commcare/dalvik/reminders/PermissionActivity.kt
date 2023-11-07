@@ -114,11 +114,11 @@ class PermissionActivity : AppCompatActivity() {
         grantPermissionBtn.visibility = btnVisibility
     }
 
-    private fun dispatchResult(isGranted: Boolean) {
+    private fun dispatchResult(hasReadPermission: Boolean) {
         val resultIntent = Intent().apply {
             putExtra("permissionName", CC_CASE_READ_PERMISSION)
             putExtra(
-                "isPermissionGranted", if (isGranted) GRANTED else
+                "isPermissionGranted", if (hasReadPermission) GRANTED else
                     DENIED
             )
         }
