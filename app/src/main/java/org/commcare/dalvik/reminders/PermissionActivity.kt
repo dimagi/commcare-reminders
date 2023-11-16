@@ -138,7 +138,7 @@ class PermissionActivity : AppCompatActivity() {
                     readPermissionTitle.visibility = View.GONE
                 } else {
                     var msg =  resources.getString(R.string.following_permission_not_granted)
-                    msg.plus( resources.getString(R.string.notification_permission_not_granted))
+                    msg = msg.plus( resources.getString(R.string.notification_permission_not_granted))
 
                     updateUI(
                         msg,
