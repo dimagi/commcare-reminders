@@ -17,8 +17,9 @@
     <string name="permission">Permission</string>
     <string name="allow">Grant Permission</string>
 
-    <string name="storage_permission_not_granted">Storage permission not granted by user.</string>
-    <string name="notification_permission_not_granted">Notification permission not granted by user.</string>
+    <string name="following_permission_not_granted">Following permission not granted by user :</string>
+    <string name="storage_permission_not_granted">\n- Storage</string>
+    <string name="notification_permission_not_granted">\n- Notification</string>
     <string name="storage_granted_msg">You’re all set! Reminders will be created once you log into your CommCare application</string>
     <string name="appSettingMsg">You can also enable the permission from the application setting. Just click on \"Go To Settings\" to open the application setting page.</string>
     <string name="close">Close</string>

@@ -118,7 +118,7 @@ class PermissionActivity : AppCompatActivity() {
         val resultIntent = Intent().apply {
             putExtra("permissionName", CC_CASE_READ_PERMISSION)
             putExtra(
-                "isPermissionGranted", if (hasReadPermission) GRANTED else
+                "isPermissionGranted", if (hasReadPermission && hasNotificationPermission()) GRANTED else
                     DENIED
             )
         }
@@ -137,8 +137,11 @@ class PermissionActivity : AppCompatActivity() {
                     settingCardView.visibility = View.GONE
                     readPermissionTitle.visibility = View.GONE
                 } else {
+                    var msg =  resources.getString(R.string.following_permission_not_granted)
+                    msg.plus( resources.getString(R.string.notification_permission_not_granted))
+
                     updateUI(
-                        resources.getString(R.string.notification_permission_not_granted),
+                        msg,
                         View.VISIBLE
                     )
                     settingCardView.visibility = View.VISIBLE
@@ -164,15 +167,15 @@ class PermissionActivity : AppCompatActivity() {
 
             else -> {
                 Log.d(TAG, "===> Check FOR PERMISSION")
-                updateUI(resources.getString(R.string.storage_permission_not_granted), View.VISIBLE)
+                var msg =  resources.getString(R.string.following_permission_not_granted)
+                msg = msg.plus(resources.getString(R.string.storage_permission_not_granted))
+
 
                 if (!hasNotificationPermission()) {
-                    updateUI(
-                        permissionMsgView.text.toString()
-                            .plus(resources.getString(R.string.notification_permission_not_granted)),
-                        View.VISIBLE
-                    )
+                    msg = msg.plus(resources.getString(R.string.notification_permission_not_granted))
                 }
+
+                updateUI(msg, View.VISIBLE)
 
 
                 settingCardView.visibility = View.VISIBLE

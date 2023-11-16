@@ -48,11 +48,11 @@ class MainActivity : AppCompatActivity() {
                         } else {
                             requestPermissionBtn.visibility = VISIBLE
 
-                            var msg = getString(R.string.storage_permission_not_granted)
+                            var msg =  resources.getString(R.string.following_permission_not_granted)
+                            msg = msg.plus(getString(R.string.storage_permission_not_granted))
 
                             if (!hasNotificationPermission()) {
-                                var notificationMsg = getString(R.string.notification_permission_not_granted)
-                                msg = msg + notificationMsg
+                                msg = msg.plus(getString(R.string.notification_permission_not_granted))
                             }
 
                             statusTv.text = msg
@@ -116,11 +116,11 @@ class MainActivity : AppCompatActivity() {
 
                 } else {
                     requestPermissionBtn.visibility = VISIBLE
-                    var msg = getString(R.string.storage_permission_not_granted)
+                    var msg =  resources.getString(R.string.following_permission_not_granted)
+                    msg = msg.plus(getString(R.string.storage_permission_not_granted))
+
                     if (!hasNotificationPermission()) {
-                        var notificationMsg =
-                            getString(R.string.notification_permission_not_granted)
-                        msg = msg + notificationMsg
+                        msg = msg.plus(getString(R.string.notification_permission_not_granted))
                     }
                     statusTv.text = msg
                     statusTv.visibility = VISIBLE
