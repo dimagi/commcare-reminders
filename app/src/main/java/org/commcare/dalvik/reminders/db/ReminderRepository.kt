@@ -11,8 +11,8 @@ class ReminderRepository(private val reminderDao: ReminderDao) {
 
     val observeReminders: LiveData<List<Reminder>> = reminderDao.observeReminders()
 
-    suspend fun refreshCasesFromCC(context: Context) {
-        CommCareUtils.getRemindersFromCommCare(context).let { reminders ->
+    suspend fun refreshCasesFromCC(context: Context, currentUserId: String?) {
+        CommCareUtils.getRemindersFromCommCare(context, currentUserId).let { reminders ->
             val oldReminders = getAllReminders()
             reminderDao.updateAllReminders(reminders)
             PrefsUtil.markSuccessfulSync(context)
