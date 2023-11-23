@@ -34,7 +34,7 @@ class ReminderViewModel(application: Application) : AndroidViewModel(application
     fun syncOnFirstRun() {
         if (PrefsUtil.isSyncPending(getApplication())) {
             viewModelScope.launch(Dispatchers.IO) {
-                repository.refreshCasesFromCC(getApplication())
+                repository.refreshCasesFromCC(getApplication(), null)
             }
         }
     }
