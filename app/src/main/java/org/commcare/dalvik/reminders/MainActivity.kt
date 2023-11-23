@@ -43,24 +43,11 @@ class MainActivity : AppCompatActivity() {
                                 getStarted()
                             } else {
                                 requestPermissionBtn.visibility = VISIBLE
-                                var msg =  resources.getString(R.string.following_permission_not_granted)
-                                msg = msg.plus(getString(R.string.notification_permission_not_granted))
-                                statusTv.text = msg
-                                statusTv.visibility = VISIBLE
+                                updatePermissionStatus(true,false)
                             }
                         } else {
                             requestPermissionBtn.visibility = VISIBLE
-
-                            var msg =  resources.getString(R.string.following_permission_not_granted)
-                            msg = msg.plus(getString(R.string.storage_permission_not_granted))
-
-                            if (!hasNotificationPermission()) {
-                                msg = msg.plus(getString(R.string.notification_permission_not_granted))
-                            }
-
-                            statusTv.text = msg
-                            statusTv.visibility = VISIBLE
-
+                            updatePermissionStatus(false,hasNotificationPermission())
                         }
                     }
                 }
@@ -112,24 +99,14 @@ class MainActivity : AppCompatActivity() {
             if (reminders == null || reminders.isEmpty()) {
                 if (PermissionUtil.hasReadPermission(this)) {
                     if (hasNotificationPermission()) {
-                        setStatus(R.string.storage_granted_msg)
+                        updatePermissionStatus(true,true)
                     } else {
-                        var msg =  resources.getString(R.string.following_permission_not_granted)
-                        msg = msg.plus(getString(R.string.notification_permission_not_granted))
-                        statusTv.text = msg
-                        statusTv.visibility = VISIBLE
+                        updatePermissionStatus(true,false)
                     }
 
                 } else {
                     requestPermissionBtn.visibility = VISIBLE
-                    var msg =  resources.getString(R.string.following_permission_not_granted)
-                    msg = msg.plus(getString(R.string.storage_permission_not_granted))
-
-                    if (!hasNotificationPermission()) {
-                        msg = msg.plus(getString(R.string.notification_permission_not_granted))
-                    }
-                    statusTv.text = msg
-                    statusTv.visibility = VISIBLE
+                    updatePermissionStatus(false,hasNotificationPermission())
                 }
 
             } else {
@@ -137,11 +114,6 @@ class MainActivity : AppCompatActivity() {
             }
             reminders?.let { remindersAdapter.setReminders(reminders) }
         })
-    }
-
-    private fun setStatus(stringResource: Int) {
-        statusTv.text = getString(stringResource)
-        statusTv.visibility = VISIBLE
     }
 
     private fun getStarted() {
@@ -186,11 +158,11 @@ class MainActivity : AppCompatActivity() {
             if(hasNotificationPermission()) {
                 getStarted()
             }else{
-                setStatus(R.string.no_notification_permission_message)
+                updatePermissionStatus(true,false)
                 launchPermissionActivity()
             }
         } else {
-            setStatus(R.string.no_permission_message)
+            updatePermissionStatus(false,hasNotificationPermission())
             launchPermissionActivity()
         }
     }
@@ -201,4 +173,23 @@ class MainActivity : AppCompatActivity() {
         } else {
             true
         }
+
+    private fun updatePermissionStatus(
+        hasStoragePermission: Boolean,
+        hasNotificationPermission: Boolean
+    ) {
+        var msg = resources.getString(R.string.following_permission_not_granted)
+        if (!hasStoragePermission) {
+            msg = msg.plus(getString(R.string.storage_permission_not_granted))
+        }
+
+        if (!hasNotificationPermission) {
+            msg = msg.plus(getString(R.string.notification_permission_not_granted))
+        }
+        if (hasStoragePermission && hasNotificationPermission) {
+            msg = getString(R.string.storage_granted_msg)
+        }
+        statusTv.text = msg
+        statusTv.visibility = VISIBLE
+    }
 }
