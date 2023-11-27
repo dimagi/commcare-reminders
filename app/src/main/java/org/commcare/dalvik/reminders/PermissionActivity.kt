@@ -42,7 +42,6 @@ class PermissionActivity : AppCompatActivity() {
     private var isNotifcationRequestGranted = false
 
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private val requestSinglePermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             Log.d(TAG, "PERMISSION RESULT : ${isGranted}")
@@ -66,7 +65,7 @@ class PermissionActivity : AppCompatActivity() {
             }
         }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.permission_activity)
@@ -103,7 +102,7 @@ class PermissionActivity : AppCompatActivity() {
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+
     override fun onResume() {
         super.onResume()
         checkPermission()
@@ -127,7 +126,7 @@ class PermissionActivity : AppCompatActivity() {
     }
 
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+
     private fun checkPermission() {
         when {
             PermissionUtil.hasReadPermission(this) -> {
