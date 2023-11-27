@@ -23,7 +23,6 @@ object PermissionUtil {
     ) == PackageManager.PERMISSION_GRANTED
 
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun hasNotificationPermission(context: Context) = ContextCompat.checkSelfPermission(
         context,
         Manifest.permission.POST_NOTIFICATIONS
