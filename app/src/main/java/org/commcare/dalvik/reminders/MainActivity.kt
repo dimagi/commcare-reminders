@@ -10,6 +10,7 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.Button
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -38,15 +39,21 @@ class MainActivity : AppCompatActivity() {
                 result.data?.let { intent ->
                     intent.getStringExtra("isPermissionGranted")?.let {permissionResult ->
                         if (permissionResult == PermissionActivity.GRANTED) {
-                            getStarted()
+                            if (hasNotificationPermission()) {
+                                getStarted()
+                            } else {
+                                requestPermissionBtn.visibility = VISIBLE
+                                updatePermissionStatus(true,false)
+                            }
                         } else {
                             requestPermissionBtn.visibility = VISIBLE
-                            setStatus(R.string.storage_permission_not_granted)
+                            updatePermissionStatus(false,hasNotificationPermission())
                         }
                     }
                 }
             }
         }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,11 +97,16 @@ class MainActivity : AppCompatActivity() {
 
         reminderViewModel.futureReminders.observe(this, Observer { reminders ->
             if (reminders == null || reminders.isEmpty()) {
-                if(PermissionUtil.hasReadPermission(this)){
-                    setStatus(R.string.storage_granted_msg)
-                }else{
-                    setStatus(R.string.storage_permission_not_granted)
+                if (PermissionUtil.hasReadPermission(this)) {
+                    if (hasNotificationPermission()) {
+                        updatePermissionStatus(true,true)
+                    } else {
+                        updatePermissionStatus(true,false)
+                    }
+
+                } else {
                     requestPermissionBtn.visibility = VISIBLE
+                    updatePermissionStatus(false,hasNotificationPermission())
                 }
 
             } else {
@@ -102,11 +114,6 @@ class MainActivity : AppCompatActivity() {
             }
             reminders?.let { remindersAdapter.setReminders(reminders) }
         })
-    }
-
-    private fun setStatus(stringResource: Int) {
-        statusTv.text = getString(stringResource)
-        statusTv.visibility = VISIBLE
     }
 
     private fun getStarted() {
@@ -147,11 +154,42 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun validateReadPermissionsAndSync() {
-        if (PermissionUtil.hasReadPermission(this)) {
-            getStarted()
+        if (PermissionUtil.hasReadPermission(this) ) {
+            if(hasNotificationPermission()) {
+                getStarted()
+            }else{
+                updatePermissionStatus(true,false)
+                launchPermissionActivity()
+            }
         } else {
-            setStatus(R.string.no_permission_message)
+            updatePermissionStatus(false,hasNotificationPermission())
             launchPermissionActivity()
         }
+    }
+
+    private fun hasNotificationPermission() =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            PermissionUtil.hasNotificationPermission(this)
+        } else {
+            true
+        }
+
+    private fun updatePermissionStatus(
+        hasStoragePermission: Boolean,
+        hasNotificationPermission: Boolean
+    ) {
+        var msg = resources.getString(R.string.following_permission_not_granted)
+        if (!hasStoragePermission) {
+            msg = msg.plus(getString(R.string.storage_permission_not_granted))
+        }
+
+        if (!hasNotificationPermission) {
+            msg = msg.plus(getString(R.string.notification_permission_not_granted))
+        }
+        if (hasStoragePermission && hasNotificationPermission) {
+            msg = getString(R.string.storage_granted_msg)
+        }
+        statusTv.text = msg
+        statusTv.visibility = VISIBLE
     }
 }
