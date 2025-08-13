@@ -6,11 +6,11 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.Button
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.activity_main.remindersRecyclerView
 import kotlinx.android.synthetic.main.activity_main.statusTv
 import org.commcare.dalvik.reminders.ui.RemindersAdapter
+import org.commcare.dalvik.reminders.utils.AndroidUtil
 import org.commcare.dalvik.reminders.utils.PermissionUtil
 import org.commcare.dalvik.reminders.viewmodel.ReminderViewModel
 
@@ -67,6 +68,11 @@ class MainActivity : AppCompatActivity() {
         reminderViewModel = ViewModelProvider(this).get(ReminderViewModel::class.java)
         validateAlarmPermission()
         setUpUI()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            val contentView = findViewById<View>(android.R.id.content)
+            AndroidUtil.attachWindowInsetsListener(contentView)
+        }
     }
 
     private fun validateAlarmPermission() {
