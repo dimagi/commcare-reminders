@@ -17,6 +17,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import com.google.android.material.snackbar.Snackbar
+import org.commcare.dalvik.reminders.utils.AndroidUtil
 import org.commcare.dalvik.reminders.utils.PermissionUtil
 
 
@@ -100,6 +101,10 @@ class PermissionActivity : AppCompatActivity() {
 
         checkPermission()
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            val contentView = findViewById<View>(android.R.id.content)
+            AndroidUtil.attachWindowInsetsListener(contentView)
+        }
     }
 
 

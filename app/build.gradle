@@ -16,25 +16,25 @@ ext {
 }
 
 android {
-    compileSdkVersion 34
+    compileSdk 36
 
     defaultConfig {
         applicationId "org.commcare.dalvik.reminders"
         minSdkVersion 21
-        targetSdkVersion 34
-        versionCode 2
-        versionName "1.0"
+        targetSdkVersion 35
+        versionCode 3
+        versionName "3.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
 
@@ -117,9 +117,12 @@ afterEvaluate {
     processReleaseGoogleServices.dependsOn injectGoogleServicesAPIKey
 }
 
-task injectGoogleServicesAPIKey(type: Copy) {
+tasks.register('injectGoogleServicesAPIKey') {
     description = 'Injects the Google Services API key into the google-services.json file at runtime'
-    from file("templates/google-services.json")
-    filter(ReplaceTokens, tokens: [apiKey: project.ext.GOOGLE_SERVICES_API_KEY])
-    into projectDir
+
+    copy {
+        from file("templates/google-services.json")
+        filter(ReplaceTokens, tokens: [apiKey: project.ext.GOOGLE_SERVICES_API_KEY])
+        into projectDir
+    }
 }
